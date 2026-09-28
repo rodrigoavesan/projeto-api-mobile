@@ -15,7 +15,7 @@ export default function CardsScreen({ navigation }) {
     getCards().then(setCards);
   }, []);
 
-  // Atualiza o estado e persiste no armazenamento local
+  // Atualiza o estado e persistencia no armazenamento local
   function updateCards(newCards) {
     setCards(newCards);
     saveCards(newCards);

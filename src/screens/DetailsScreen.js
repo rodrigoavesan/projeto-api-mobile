@@ -5,7 +5,7 @@ import { Text, ActivityIndicator, Divider } from 'react-native-paper';
 import { fetchCharacterDetails } from '../services/swapi';
 import CharacterImage from '../components/CharacterImage';
 
-// Bloco reutilizável que mostra um título e uma lista de itens
+// Bloco que reutiliza o  título e uma lista de itens
 function Section({ title, items }) {
   return (
     <View style={styles.section}>
