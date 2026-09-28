@@ -1,5 +1,7 @@
 # Star Wars Cards (React Native + Expo)
 
+Rodrigo Avelar Santos - Projeto Mobile API
+
 App mobile com login, cadastro de usuário, cards de personagens da **Star Wars API (SWAPI)** e tela de detalhes.
 
 ## Tecnologias
