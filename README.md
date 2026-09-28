@@ -28,9 +28,9 @@ Na primeira vez, toque em **CADASTRAR USUÁRIO**, preencha os dados e depois fa�
 
 ## Estrutura
 ```
-App.js                        navegação e tema
-src/storage.js                AsyncStorage (usuário e cards)
-src/services/swapi.js         chamadas à Star Wars API
+App.js                       
+src/storage.js                
+src/services/swapi.js         
 src/components/CharacterImage.js
 src/screens/LoginScreen.js
 src/screens/RegisterScreen.js
