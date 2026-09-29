@@ -9,24 +9,36 @@ export default function LoginScreen({ navigation }) {
   const [senha, setSenha] = useState('');
 
   async function handleLogin() {
+    if (!usuario.trim() || !senha) {
+      Alert.alert('Atenção', 'Preencha usuário e senha.');
+      return;
+    }
+
     const saved = await getUser();
     if (!saved) {
       Alert.alert('Atenção', 'Nenhum usuário cadastrado. Clique em "Cadastrar usuário".');
       return;
     }
+
     // O "usuário" pode ser o e-mail ou o nome cadastrado
     const u = usuario.trim().toLowerCase();
     const okUser = u === saved.email.toLowerCase() || u === saved.nome.toLowerCase();
-    if (okUser && senha === saved.senha) {
-      navigation.replace('Cards');
-    } else {
-      Alert.alert('Erro', 'Usuário ou senha incorretos.');
+
+    if (!okUser) {
+      Alert.alert('Erro', 'Usuário não existe.');
+      return;
     }
+    if (senha !== saved.senha) {
+      Alert.alert('Erro', 'Senha incorreta.');
+      return;
+    }
+
+    navigation.replace('Cards');
   }
 
   return (
     <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>Projeto Star Wars</Text>
+      <Text variant="headlineMedium" style={styles.title}>STAR WARS CARDS</Text>
       <TextInput label="Usuário (nome ou e-mail)" mode="outlined" value={usuario}
         onChangeText={setUsuario} autoCapitalize="none" style={styles.input} />
       <TextInput label="Senha" mode="outlined" value={senha}
