@@ -1,8 +1,9 @@
 // App.js - ponto de entrada. Configura o tema (Material Design) e a navegação entre telas.
 import React from 'react';
+import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { PaperProvider, MD3LightTheme } from 'react-native-paper';
+import { PaperProvider, MD3LightTheme, IconButton } from 'react-native-paper';
 
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
@@ -30,7 +31,33 @@ export default function App() {
         >
           <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Login' }} />
           <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Cadastrar Usuário' }} />
-          <Stack.Screen name="Cards" component={CardsScreen} options={{ title: 'Personagens Star Wars', headerBackVisible: false }} />
+          <Stack.Screen
+            name="Cards"
+            component={CardsScreen}
+            options={({ navigation }) => ({
+              title: 'Personagens Star Wars',
+              headerBackVisible: false, // nunca mostra a seta de voltar aqui
+              headerLeft: () => null, // garante que nenhuma seta apareça, em qualquer plataforma
+              headerRight: () => (
+                <IconButton
+                  icon="logout"
+                  iconColor="#FFE81F"
+                  onPress={() =>
+                    Alert.alert('Sair', 'Deseja sair da sua conta?', [
+                      { text: 'Cancelar', style: 'cancel' },
+                      {
+                        text: 'Sair',
+                        style: 'destructive',
+                        // reset() limpa todo o histórico de navegação, então o botão "voltar"
+                        // do celular também não consegue retornar para a tela de Cards depois do logout
+                        onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Login' }] }),
+                      },
+                    ])
+                  }
+                />
+              ),
+            })}
+          />
           <Stack.Screen name="Details" component={DetailsScreen} options={{ title: 'Detalhes' }} />
         </Stack.Navigator>
       </NavigationContainer>
