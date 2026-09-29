@@ -32,9 +32,13 @@ function extractId(url) {
   return match ? Number(match[1]) : null;
 }
 
-// A SWAPI não tem imagens. O Star Wars Visual Guide usa o mesmo id do personagem.
-function imageUrl(id) {
-  return `https://starwars-visualguide.com/assets/img/characters/${id}.jpg`;
+// A SWAPI não tem imagens. Tentamos duas fontes, na ordem, pelo id do personagem.
+// Se a primeira não tiver a foto, o app cai para a segunda automaticamente.
+function imageSources(id) {
+  return [
+    `https://raw.githubusercontent.com/vieraboschkova/swapi-gallery/main/static/assets/img/people/${id}.jpg`,
+    `https://starwars-visualguide.com/assets/img/characters/${id}.jpg`,
+  ];
 }
 
 // Converte o personagem da API para o formato simples usado nos cards
@@ -43,7 +47,7 @@ function toCard(p) {
   return {
     id,
     name: p.name,
-    image: imageUrl(id),
+    imageSources: imageSources(id),
     gender: p.gender,
     birthYear: p.birth_year,
     height: p.height,

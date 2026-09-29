@@ -67,7 +67,7 @@ export default function CardsScreen({ navigation }) {
   function renderCard({ item }) {
     return (
       <Card style={styles.card}>
-        <CharacterImage uri={item.image} style={styles.image} />
+        <CharacterImage sources={item.imageSources} style={styles.image} />
         <Card.Title title={item.name} subtitle={`Nascimento: ${item.birthYear}`} />
         <Card.Content>
           <Text>Gênero: {item.gender} | Altura: {item.height} cm</Text>

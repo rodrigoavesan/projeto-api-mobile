@@ -5,7 +5,7 @@ import { Text, ActivityIndicator, Divider } from 'react-native-paper';
 import { fetchCharacterDetails } from '../services/swapi';
 import CharacterImage from '../components/CharacterImage';
 
-// Bloco que reutiliza o  título e uma lista de itens
+// Bloco reutilizável que mostra um título e uma lista de itens
 function Section({ title, items }) {
   return (
     <View style={styles.section}>
@@ -29,7 +29,7 @@ export default function DetailsScreen({ route }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <CharacterImage uri={data.image} style={styles.image} fit="contain" />
+      <CharacterImage sources={data.imageSources} style={styles.image} fit="contain" />
       <Text variant="headlineMedium" style={styles.name}>{data.name}</Text>
       <Divider style={{ marginVertical: 12 }} />
       <Text>Gênero: {data.gender}</Text>
