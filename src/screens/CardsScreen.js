@@ -5,6 +5,7 @@ import { Card, Button, Text, ActivityIndicator, Modal, Portal, TextInput } from 
 import { searchCharacters } from '../services/swapi';
 import { getCards, saveCards } from '../storage';
 import CharacterImage from '../components/CharacterImage';
+import ScreenBackground from '../components/ScreenBackground';
 
 export default function CardsScreen({ navigation }) {
   const [cards, setCards] = useState([]);
@@ -98,51 +99,53 @@ export default function CardsScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Button mode="contained" icon="plus" onPress={openModal} style={styles.add}>
-        ADD
-      </Button>
+    <ScreenBackground dim={0.65}>
+      <View style={styles.container}>
+        <Button mode="contained" icon="plus" onPress={openModal} style={styles.add}>
+          ADD
+        </Button>
 
-      <FlatList
-        data={cards}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={renderCard}
-        ListEmptyComponent={<Text style={styles.empty}>Nenhum card ainda. Clique em ADD e busque um nome!</Text>}
-        contentContainerStyle={{ paddingBottom: 24 }}
-      />
-      <Text style={styles.attribution}>Dados: SWAPI (Star Wars API)</Text>
+        <FlatList
+          data={cards}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={renderCard}
+          ListEmptyComponent={<Text style={styles.empty}>Nenhum card ainda. Clique em ADD e busque um nome!</Text>}
+          contentContainerStyle={{ paddingBottom: 24 }}
+        />
+        <Text style={styles.attribution}>Dados: SWAPI (Star Wars API)</Text>
 
-      <Portal>
-        <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modal}>
-          <Text variant="titleMedium" style={{ marginBottom: 12 }}>Buscar personagem</Text>
-          <TextInput
-            label="Nome (ex: Luke, Vader, Leia)"
-            mode="outlined"
-            value={query}
-            onChangeText={setQuery}
-            onSubmitEditing={handleSearch}
-            autoFocus
-            style={{ marginBottom: 8 }}
-          />
-          <Button mode="contained" onPress={handleSearch} disabled={searching} loading={searching}>
-            BUSCAR
-          </Button>
+        <Portal>
+          <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modal}>
+            <Text variant="titleMedium" style={{ marginBottom: 12 }}>Buscar personagem</Text>
+            <TextInput
+              label="Nome (ex: Luke, Vader, Leia)"
+              mode="outlined"
+              value={query}
+              onChangeText={setQuery}
+              onSubmitEditing={handleSearch}
+              autoFocus
+              style={{ marginBottom: 8 }}
+            />
+            <Button mode="contained" onPress={handleSearch} disabled={searching} loading={searching}>
+              BUSCAR
+            </Button>
 
-          {searching && <ActivityIndicator style={{ marginTop: 16 }} />}
+            {searching && <ActivityIndicator style={{ marginTop: 16 }} />}
 
-          {!searching && searched && results.length === 0 && (
-            <Text style={{ marginTop: 16 }}>Nenhum personagem encontrado com esse nome.</Text>
-          )}
+            {!searching && searched && results.length === 0 && (
+              <Text style={{ marginTop: 16 }}>Nenhum personagem encontrado com esse nome.</Text>
+            )}
 
-          <FlatList
-            data={results}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={renderResult}
-            style={{ marginTop: 12, maxHeight: 300 }}
-          />
-        </Modal>
-      </Portal>
-    </View>
+            <FlatList
+              data={results}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={renderResult}
+              style={{ marginTop: 12, maxHeight: 300 }}
+            />
+          </Modal>
+        </Portal>
+      </View>
+    </ScreenBackground>
   );
 }
 
@@ -152,8 +155,8 @@ const styles = StyleSheet.create({
   card: { marginBottom: 12, overflow: 'hidden' },
   image: { width: '100%', height: 260 },
   info: { marginTop: 8, fontWeight: 'bold' },
-  empty: { textAlign: 'center', marginTop: 32 },
-  attribution: { textAlign: 'center', fontSize: 11, color: '#666', marginTop: 4 },
+  empty: { textAlign: 'center', marginTop: 32, color: '#fff' },
+  attribution: { textAlign: 'center', fontSize: 11, color: '#ccc', marginTop: 4 },
   modal: { backgroundColor: 'white', margin: 24, padding: 20, borderRadius: 8 },
   resultRow: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
   resultRowDisabled: { opacity: 0.4 },

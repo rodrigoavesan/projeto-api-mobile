@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Alert } from 'react-native';
 import { TextInput, Button } from 'react-native-paper';
 import { saveUser } from '../storage';
+import ScreenBackground from '../components/ScreenBackground';
 
 // Campos do formulário (label, chave no objeto, tipo de teclado)
 const FIELDS = [
@@ -36,22 +37,24 @@ export default function RegisterScreen({ navigation }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      {FIELDS.map((f) => (
-        <TextInput
-          key={f.key}
-          label={f.label}
-          mode="outlined"
-          value={form[f.key]}
-          keyboardType={f.keyboard}
-          secureTextEntry={!!f.secure}
-          autoCapitalize={f.key === 'email' ? 'none' : 'sentences'}
-          onChangeText={(text) => setForm({ ...form, [f.key]: text })}
-          style={styles.input}
-        />
-      ))}
-      <Button mode="contained" onPress={handleSave} style={styles.button}>SALVAR</Button>
-    </ScrollView>
+    <ScreenBackground>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        {FIELDS.map((f) => (
+          <TextInput
+            key={f.key}
+            label={f.label}
+            mode="outlined"
+            value={form[f.key]}
+            keyboardType={f.keyboard}
+            secureTextEntry={!!f.secure}
+            autoCapitalize={f.key === 'email' ? 'none' : 'sentences'}
+            onChangeText={(text) => setForm({ ...form, [f.key]: text })}
+            style={styles.input}
+          />
+        ))}
+        <Button mode="contained" onPress={handleSave} style={styles.button}>SALVAR</Button>
+      </ScrollView>
+    </ScreenBackground>
   );
 }
 
