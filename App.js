@@ -1,6 +1,6 @@
 // App.js - ponto de entrada. Configura o tema (Material Design) e a navegação entre telas.
 import React from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { PaperProvider, MD3LightTheme, IconButton } from 'react-native-paper';
@@ -17,6 +17,19 @@ const theme = {
   ...MD3LightTheme,
   colors: { ...MD3LightTheme.colors, primary: '#111111', onPrimary: '#FFE81F', secondary: '#FFE81F' },
 };
+
+// Alert.alert com botões não funciona no navegador (Expo web), então usamos window.confirm lá.
+// No celular (Android/iOS), usamos o Alert.alert nativo normalmente.
+function confirmLogout(onConfirm) {
+  if (Platform.OS === 'web') {
+    if (window.confirm('Deseja sair da sua conta?')) onConfirm();
+    return;
+  }
+  Alert.alert('Sair', 'Deseja sair da sua conta?', [
+    { text: 'Cancelar', style: 'cancel' },
+    { text: 'Sair', style: 'destructive', onPress: onConfirm },
+  ]);
+}
 
 export default function App() {
   return (
@@ -43,16 +56,9 @@ export default function App() {
                   icon="logout"
                   iconColor="#FFE81F"
                   onPress={() =>
-                    Alert.alert('Sair', 'Deseja sair da sua conta?', [
-                      { text: 'Cancelar', style: 'cancel' },
-                      {
-                        text: 'Sair',
-                        style: 'destructive',
-                        // reset() limpa todo o histórico de navegação, então o botão "voltar"
-                        // do celular também não consegue retornar para a tela de Cards depois do logout
-                        onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Login' }] }),
-                      },
-                    ])
+                    // reset() limpa todo o histórico de navegação, então o botão "voltar"
+                    // do celular também não consegue retornar para a tela de Cards depois do logout
+                    confirmLogout(() => navigation.reset({ index: 0, routes: [{ name: 'Login' }] }))
                   }
                 />
               ),
