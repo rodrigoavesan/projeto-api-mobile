@@ -1,37 +1,62 @@
-// Tela de CARDS: lista personagens da Star Wars API, permite adicionar, excluir e ver detalhes.
+// Tela de CARDS: adiciona personagens da Star Wars API buscando pelo nome, permite excluir e ver detalhes.
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, StyleSheet, Alert } from 'react-native';
-import { Card, Button, Text, ActivityIndicator } from 'react-native-paper';
-import { fetchRandomCharacter } from '../services/swapi';
+import { View, FlatList, StyleSheet, Alert, Pressable } from 'react-native';
+import { Card, Button, Text, ActivityIndicator, Modal, Portal, TextInput } from 'react-native-paper';
+import { searchCharacters } from '../services/swapi';
 import { getCards, saveCards } from '../storage';
 import CharacterImage from '../components/CharacterImage';
 
 export default function CardsScreen({ navigation }) {
   const [cards, setCards] = useState([]);
-  const [loading, setLoading] = useState(false);
+
+  // estado do modal de busca
+  const [modalVisible, setModalVisible] = useState(false);
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [searched, setSearched] = useState(false);
 
   // Ao abrir a tela, recupera os cards salvos anteriormente
   useEffect(() => {
     getCards().then(setCards);
   }, []);
 
-  // Atualiza o estado e persistencia no armazenamento local
+  // Atualiza o estado e persiste no armazenamento local
   function updateCards(newCards) {
     setCards(newCards);
     saveCards(newCards);
   }
 
-  // ADD: busca um personagem novo na API e coloca no topo da lista
-  async function handleAdd() {
+  function openModal() {
+    setQuery('');
+    setResults([]);
+    setSearched(false);
+    setModalVisible(true);
+  }
+
+  // Busca na API os personagens que batem com o nome digitado
+  async function handleSearch() {
+    if (!query.trim()) return;
     try {
-      setLoading(true);
-      const novo = await fetchRandomCharacter(cards.map((c) => c.id));
-      updateCards([novo, ...cards]);
+      setSearching(true);
+      const encontrados = await searchCharacters(query);
+      setResults(encontrados);
+      setSearched(true);
     } catch (e) {
       Alert.alert('Erro', e.message);
     } finally {
-      setLoading(false);
+      setSearching(false);
     }
+  }
+
+  // Adiciona o personagem escolhido no topo da lista de cards
+  function handlePick(personagem) {
+    if (cards.some((c) => c.id === personagem.id)) {
+      Alert.alert('Atenção', 'Esse personagem já está na sua lista.');
+      return;
+    }
+    updateCards([personagem, ...cards]);
+    setModalVisible(false);
   }
 
   // EXCLUIR: remove o card da lista
@@ -60,20 +85,63 @@ export default function CardsScreen({ navigation }) {
     );
   }
 
+  function renderResult({ item }) {
+    const jaAdicionado = cards.some((c) => c.id === item.id);
+    return (
+      <Pressable onPress={() => !jaAdicionado && handlePick(item)} disabled={jaAdicionado}>
+        <View style={[styles.resultRow, jaAdicionado && styles.resultRowDisabled]}>
+          <Text style={styles.resultName}>{item.name}</Text>
+          <Text style={styles.resultInfo}>{jaAdicionado ? 'Já adicionado' : 'Toque para adicionar'}</Text>
+        </View>
+      </Pressable>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Button mode="contained" icon="plus" onPress={handleAdd} disabled={loading} style={styles.add}>
+      <Button mode="contained" icon="plus" onPress={openModal} style={styles.add}>
         ADD
       </Button>
-      {loading && <ActivityIndicator style={{ margin: 8 }} />}
+
       <FlatList
         data={cards}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderCard}
-        ListEmptyComponent={<Text style={styles.empty}>Nenhum card ainda. Clique em ADD!</Text>}
+        ListEmptyComponent={<Text style={styles.empty}>Nenhum card ainda. Clique em ADD e busque um nome!</Text>}
         contentContainerStyle={{ paddingBottom: 24 }}
       />
       <Text style={styles.attribution}>Dados: SWAPI (Star Wars API)</Text>
+
+      <Portal>
+        <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modal}>
+          <Text variant="titleMedium" style={{ marginBottom: 12 }}>Buscar personagem</Text>
+          <TextInput
+            label="Nome (ex: Luke, Vader, Leia)"
+            mode="outlined"
+            value={query}
+            onChangeText={setQuery}
+            onSubmitEditing={handleSearch}
+            autoFocus
+            style={{ marginBottom: 8 }}
+          />
+          <Button mode="contained" onPress={handleSearch} disabled={searching} loading={searching}>
+            BUSCAR
+          </Button>
+
+          {searching && <ActivityIndicator style={{ marginTop: 16 }} />}
+
+          {!searching && searched && results.length === 0 && (
+            <Text style={{ marginTop: 16 }}>Nenhum personagem encontrado com esse nome.</Text>
+          )}
+
+          <FlatList
+            data={results}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={renderResult}
+            style={{ marginTop: 12, maxHeight: 300 }}
+          />
+        </Modal>
+      </Portal>
     </View>
   );
 }
@@ -86,4 +154,9 @@ const styles = StyleSheet.create({
   info: { marginTop: 8, fontWeight: 'bold' },
   empty: { textAlign: 'center', marginTop: 32 },
   attribution: { textAlign: 'center', fontSize: 11, color: '#666', marginTop: 4 },
+  modal: { backgroundColor: 'white', margin: 24, padding: 20, borderRadius: 8 },
+  resultRow: { paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  resultRowDisabled: { opacity: 0.4 },
+  resultName: { fontSize: 16 },
+  resultInfo: { fontSize: 12, color: '#666' },
 });

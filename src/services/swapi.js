@@ -1,9 +1,8 @@
 // Serviço de acesso à Star Wars API (SWAPI). Não precisa de chave.
 // Tenta o primeiro endereço e, se falhar, usa o segundo (espelho).
 const BASES = ['https://swapi.info/api', 'https://swapi.dev/api'];
-const MAX_ID = 83; // a SWAPI tem personagens de id 1 a 83 (o 17 não existe)
 
-// GET em um caminho da API. Retorna null se o id não existir (404).
+// GET em um caminho da API, tentando cada endereço da lista.
 async function get(path) {
   for (const base of BASES) {
     try {
@@ -27,13 +26,20 @@ async function getByUrl(url) {
   }
 }
 
+// Extrai o id numérico a partir da URL do personagem (funciona nos dois endereços da API)
+function extractId(url) {
+  const match = url.match(/\/people\/(\d+)/);
+  return match ? Number(match[1]) : null;
+}
+
 // A SWAPI não tem imagens. O Star Wars Visual Guide usa o mesmo id do personagem.
 function imageUrl(id) {
   return `https://starwars-visualguide.com/assets/img/characters/${id}.jpg`;
 }
 
 // Converte o personagem da API para o formato simples usado nos cards
-function toCard(p, id) {
+function toCard(p) {
+  const id = extractId(p.url);
   return {
     id,
     name: p.name,
@@ -48,15 +54,26 @@ function toCard(p, id) {
   };
 }
 
-// Busca um personagem aleatório que ainda não esteja na lista (existingIds)
-export async function fetchRandomCharacter(existingIds = []) {
-  for (let i = 0; i < 15; i++) {
-    const id = Math.floor(Math.random() * MAX_ID) + 1;
-    if (existingIds.includes(id)) continue;
-    const person = await get(`/people/${id}`);
-    if (person) return toCard(person, id);
+// Busca personagens pelo nome digitado. Retorna até 10 resultados (nome parcial, sem diferenciar maiúsculas).
+export async function searchCharacters(query) {
+  const termo = query.trim().toLowerCase();
+  if (!termo) return [];
+
+  // 1ª tentativa: a API já filtra por nome (swapi.dev)
+  try {
+    const data = await get(`/people/?search=${encodeURIComponent(termo)}`);
+    if (data?.results?.length) return data.results.slice(0, 10).map(toCard);
+  } catch (e) {
+    // segue para o plano B
   }
-  throw new Error('Não foi possível encontrar um novo personagem. Tente de novo.');
+
+  // 2ª tentativa: baixa a lista inteira (swapi.info) e filtra aqui no app
+  const lista = await get('/people');
+  const todos = Array.isArray(lista) ? lista : lista?.results ?? [];
+  return todos
+    .filter((p) => p.name.toLowerCase().includes(termo))
+    .slice(0, 10)
+    .map(toCard);
 }
 
 // Busca os detalhes completos de um personagem (tela de detalhes)
@@ -77,7 +94,7 @@ export async function fetchCharacterDetails(id) {
   ]);
 
   return {
-    ...toCard(p, id),
+    ...toCard({ ...p, url: p.url ?? `https://swapi.info/api/people/${id}` }),
     hairColor: p.hair_color,
     skinColor: p.skin_color,
     eyeColor: p.eye_color,
