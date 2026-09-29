@@ -69,18 +69,23 @@ export default function CardsScreen({ navigation }) {
     return (
       <Card style={styles.card}>
         <CharacterImage sources={item.imageSources} style={styles.image} />
-        <Card.Title title={item.name} subtitle={`Nascimento: ${item.birthYear}`} />
+        <Card.Title
+          title={item.name}
+          subtitle={`Nascimento: ${item.birthYear}`}
+          titleStyle={styles.cardTitle}
+          subtitleStyle={styles.cardSubtitle}
+        />
         <Card.Content>
-          <Text>Gênero: {item.gender} | Altura: {item.height} cm</Text>
-          <Text style={styles.info}>
+          <Text style={styles.cardText}>Gênero: {item.gender} | Altura: {item.height} cm</Text>
+          <Text style={styles.cardInfo}>
             Filmes: {item.films} | Naves: {item.starships} | Veículos: {item.vehicles}
           </Text>
         </Card.Content>
         <Card.Actions>
-          <Button onPress={() => navigation.navigate('Details', { id: item.id, name: item.name })}>
+          <Button textColor="#FFE81F" onPress={() => navigation.navigate('Details', { id: item.id, name: item.name })}>
             VER MAIS DETALHES
           </Button>
-          <Button textColor="#B00020" onPress={() => handleDelete(item.id)}>EXCLUIR</Button>
+          <Button textColor="#FF6B6B" onPress={() => handleDelete(item.id)}>EXCLUIR</Button>
         </Card.Actions>
       </Card>
     );
@@ -152,9 +157,12 @@ export default function CardsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 12 },
   add: { marginBottom: 8 },
-  card: { marginBottom: 12, overflow: 'hidden' },
+  card: { marginBottom: 12, overflow: 'hidden', backgroundColor: '#1a1a1a' },
   image: { width: '100%', height: 260 },
-  info: { marginTop: 8, fontWeight: 'bold' },
+  cardTitle: { color: '#FFE81F', fontWeight: 'bold' },
+  cardSubtitle: { color: '#ccc' },
+  cardText: { color: '#fff' },
+  cardInfo: { marginTop: 8, fontWeight: 'bold', color: '#FFE81F' },
   empty: { textAlign: 'center', marginTop: 32, color: '#fff' },
   attribution: { textAlign: 'center', fontSize: 11, color: '#ccc', marginTop: 4 },
   modal: { backgroundColor: 'white', margin: 24, padding: 20, borderRadius: 8 },
