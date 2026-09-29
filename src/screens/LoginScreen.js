@@ -14,13 +14,14 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
+    
     const saved = await getUser();
     if (!saved) {
       Alert.alert('Atenção', 'Nenhum usuário cadastrado. Clique em "Cadastrar usuário".');
       return;
     }
 
-    // O "usuário" pode ser o e-mail ou o nome cadastrado
+    
     const u = usuario.trim().toLowerCase();
     const okUser = u === saved.email.toLowerCase() || u === saved.nome.toLowerCase();
 
